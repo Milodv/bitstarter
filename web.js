@@ -4,9 +4,9 @@ var app = express.createServer(express.logger());
 
 var fs = require('fs');
 var indexbuf = fs.readFileSync('index.html');
-  console.log(indexbuf.toString());
+//  console.log(indexbuf.toString());
 var index = indexbuf.toString();
-  console.log(index);
+//  console.log(index);
 
 app.get('/', function(request, response) {
   response.send(index);
