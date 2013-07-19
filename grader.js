@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+//usr/bin/env node
 /*
 Automatically grade files for the presence of specified HTML tags/attributes.
 Uses commander.js and cheerio. Teaches command line application development
@@ -24,8 +24,11 @@ References:
 var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
+var sys = require('util');
+var rest = require('restler');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
+var bla = "http://info.nl";
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
@@ -37,6 +40,8 @@ var assertFileExists = function(infile) {
 };
 
 var cheerioHtmlFile = function(htmlfile) {
+      console.log(htmlfile);
+    console.log(typeof htmlfile);
     return cheerio.load(fs.readFileSync(htmlfile));
 };
 
@@ -46,6 +51,7 @@ var loadChecks = function(checksfile) {
 
 var checkHtmlFile = function(htmlfile, checksfile) {
     $ = cheerioHtmlFile(htmlfile);
+ //       console.log($);
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
@@ -53,6 +59,23 @@ var checkHtmlFile = function(htmlfile, checksfile) {
         out[checks[ii]] = present;
     }
     return out;
+};
+
+var getUrl = function (url) {
+  // console.log('in de geturl');
+    gotfile = "url.html";
+    fs.writeFileSync(gotfile, '1');
+    rest.get(url).on('complete', function(result){
+    if (result instanceof Error) {
+      sys.puts('Error: ' + result.message);
+      this.retry(5000); // try again after 5 sec
+    } else {
+//    sys.puts(result);
+//       console.log('in elsje');
+      gotfile = "url.html";
+      fs.writeFileSync(gotfile, result);
+      }
+    })
 };
 
 var clone = function(fn) {
@@ -65,9 +88,25 @@ if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
+        .option('-u, --url <url>', 'url to index.html')
         .parse(process.argv);
+//          console.log(program.url);
+          if (program.url) {
+         getUrl(program.url);
+           gotfile = "url.html";
+//            console.log(gotfile);
+ //           console.log(typeof gotfile);
+            var checkJson = checkHtmlFile(gotfile, program.checks);
+                var outJson = JSON.stringify(checkJson, null, 4);
+     //                     console.log(gotfile);
+          }
+          else {
+   //             console.log(typeof program.file);
+     //           console.log(program.file);
     var checkJson = checkHtmlFile(program.file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
+                 //             console.log(htmlfile);
+    }
     console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
