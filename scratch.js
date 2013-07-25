@@ -20,4 +20,13 @@ rest.get(url).on('complete', function(result){
   }
 })};
 
-getUrl(url);
+//getUrl(url);
+
+
+var writeUrlToFile = function (url, gotfile) {
+    rest.get(url).on('complete', function(result){
+      fs.writeFileSync(gotfile, result);
+      })
+};
+
+writeUrlToFile(url);
